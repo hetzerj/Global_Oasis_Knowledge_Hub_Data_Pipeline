@@ -1,4 +1,4 @@
-# Global_Oasis_Knowledge_Hub_Data_Pipeline
+# Global Oasis Knowledge Hub Data Pipeline
 
 This repository contains the data pipeline for the **Global Oasis Knowledge Hub**. It is used to generate, enrich, and prepare the literature data that powers the platform. The pipeline supports the regular processing of reviewed references, their matching to OpenAlex records, the construction of citation networks, and the export of platform ready output files.
 
