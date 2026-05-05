@@ -32,9 +32,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
 
-      - name: Install R packages
+  - name: Install R packages
         run: |
-          Rscript -e 'install.packages(c("httr", "httr2", "jsonlite", "fs", "arrow", "openalexR", "readr"), repos = "https://cloud.r-project.org")'
+          Rscript -e 'install.packages(c("httr", "httr2", "jsonlite", "fs", "openalexR", "readr"), repos = "https://cloud.r-project.org")'
+          Rscript -e 'install.packages("arrow", repos = "https://packagemanager.posit.co/cran/__linux__/noble/latest")'
 
       - name: Run monthly update
         run: Rscript run_monthly_update.R
