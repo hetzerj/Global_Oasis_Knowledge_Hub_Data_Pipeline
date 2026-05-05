@@ -34,7 +34,7 @@ jobs:
 
       - name: Install R packages
         run: |
-          Rscript -e 'install.packages(c("httr", "httr2", "jsonlite", "fs"), repos = "https://cloud.r-project.org")'
+          Rscript -e 'install.packages(c("httr", "httr2", "jsonlite", "fs", "arrow", "openalexR"), repos = "https://cloud.r-project.org")'
 
       - name: Run monthly update
         run: Rscript run_monthly_update.R
