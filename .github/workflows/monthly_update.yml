@@ -18,6 +18,7 @@ jobs:
       PIPELINE_TYPE: "monthly"
       OUTPUT_DIR: "output"
       VERSION_FILE: "VERSION"
+      openalexR.apikey: ${{ secrets.OPENALEXR_API_KEY }}
 
     steps:
       - name: Check out repository
