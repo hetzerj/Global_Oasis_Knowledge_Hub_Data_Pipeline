@@ -32,7 +32,6 @@ read_current_version <- function(version_file) {
   version
 }
 
-
 parse_version <- function(version) {
   version_clean <- sub("^v", "", version)
   parts <- strsplit(version_clean, "\\.")[[1]]
@@ -94,6 +93,7 @@ zenodo_token <- Sys.getenv("ZENODO_TOKEN")
 use_sandbox <- tolower(Sys.getenv("ZENODO_SANDBOX", "true")) %in% c("true", "1", "yes")
 publish_record <- tolower(Sys.getenv("ZENODO_PUBLISH", "false")) %in% c("true", "1", "yes")
 
+record_id <- Sys.getenv("ZENODO_RECORD_ID", unset = NA)
 deposition_id <- Sys.getenv("ZENODO_DEPOSITION_ID", unset = NA)
 output_dir <- Sys.getenv("OUTPUT_DIR", "output")
 
@@ -351,26 +351,78 @@ publish_deposition <- function(dep) {
   httr2::resp_body_json(resp, simplifyVector = FALSE)
 }
 
+create_new_version <- function(record_id) {
+  message("Creating a new version draft from published record: ", record_id)
+  
+  new_version_url <- paste0(
+    base_url,
+    "/deposit/depositions/",
+    record_id,
+    "/actions/newversion"
+  )
+  
+  resp <- zenodo_request(new_version_url) |>
+    httr2::req_method("POST") |>
+    httr2::req_error(is_error = function(resp) FALSE) |>
+    httr2::req_perform()
+  
+  status <- httr2::resp_status(resp)
+  body <- httr2::resp_body_string(resp)
+  
+  if (status >= 300) {
+    stop(
+      "Zenodo API error while creating a new version.\n",
+      "HTTP status: ", status, "\n",
+      "Response body:\n", body
+    )
+  }
+  
+  new_version_response <- jsonlite::fromJSON(body, simplifyVector = FALSE)
+  
+  if (is.null(new_version_response$links$latest_draft)) {
+    stop(
+      "Zenodo created a new version response, but no latest_draft link was found.\n",
+      "Response body:\n", body
+    )
+  }
+  
+  message("New version draft link: ", new_version_response$links$latest_draft)
+  
+  new_version_response$links$latest_draft
+}
+
+
+get_deposition_by_url <- function(url) {
+  message("Reading Zenodo draft deposition:")
+  message(url)
+  
+  resp <- zenodo_request(url) |>
+    httr2::req_error(is_error = function(resp) FALSE) |>
+    httr2::req_perform()
+  
+  check_response(resp, "reading new version draft")
+  
+  httr2::resp_body_json(resp, simplifyVector = FALSE)
+}
+
 
 # ==============================================================================
 # Main workflow
 # ==============================================================================
 
-if (is.na(deposition_id) || deposition_id == "") {
-  dep <- create_new_deposition()
-} else {
+if (!is.na(deposition_id) && deposition_id != "") {
+  message("Using existing draft deposition from ZENODO_DEPOSITION_ID.")
   dep <- get_deposition(deposition_id)
-}
-
-message("Deposition ID: ", dep$id)
-message("HTML URL: ", dep$links$html)
-
-dep <- update_metadata(dep)
-
-delete_existing_files(dep)
-
-for (file_path in files_to_upload) {
-  upload_file_to_deposition(dep$id, file_path, output_dir)
+  
+} else if (!is.na(record_id) && record_id != "") {
+  message("Creating new version from ZENODO_RECORD_ID.")
+  latest_draft_url <- create_new_version(record_id)
+  dep <- get_deposition_by_url(latest_draft_url)
+  
+} else {
+  message("No ZENODO_DEPOSITION_ID or ZENODO_RECORD_ID provided.")
+  message("Creating a completely new Zenodo draft deposition.")
+  dep <- create_new_deposition()
 }
 
 message("Upload complete.")
