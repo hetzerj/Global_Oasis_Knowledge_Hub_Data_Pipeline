@@ -239,6 +239,7 @@ update_metadata <- function(dep) {
     metadata = list(
       title = paste0("Global Oasis Knowledge Hub Data ", dataset_version),
       upload_type = "dataset",
+      publication_date = as.character(Sys.Date()),
       description = paste(
         "Generated data products from the Global Oasis Knowledge Hub data pipeline.",
         "Pipeline type:", pipeline_type,
@@ -344,11 +345,25 @@ publish_deposition <- function(dep) {
   
   resp <- zenodo_request(dep$links$publish) |>
     httr2::req_method("POST") |>
+    httr2::req_error(is_error = function(resp) FALSE) |>
     httr2::req_perform()
   
-  check_response(resp, "publishing deposition")
+  status <- httr2::resp_status(resp)
+  body <- tryCatch(httr2::resp_body_string(resp), error = function(e) "")
   
-  httr2::resp_body_json(resp, simplifyVector = FALSE)
+  message("Publish status: ", status)
+  message("Publish response body:")
+  message(body)
+  
+  if (status >= 300) {
+    stop(
+      "Zenodo API error while publishing deposition.\n",
+      "HTTP status: ", status, "\n",
+      "Response body:\n", body
+    )
+  }
+  
+  jsonlite::fromJSON(body, simplifyVector = FALSE)
 }
 
 create_new_version <- function(record_id) {
@@ -405,7 +420,6 @@ get_deposition_by_url <- function(url) {
   httr2::resp_body_json(resp, simplifyVector = FALSE)
 }
 
-
 # ==============================================================================
 # Main workflow
 # ==============================================================================
@@ -425,17 +439,32 @@ if (!is.na(deposition_id) && deposition_id != "") {
   dep <- create_new_deposition()
 }
 
-message("Upload complete.")
+message("Deposition ID: ", dep$id)
+message("HTML URL: ", dep$links$html)
 
-write_version_file(version_file, dataset_version)
+# Update metadata, including publication_date
+dep <- update_metadata(dep)
+
+# Remove files copied from the previous version, if any
+delete_existing_files(dep)
+
+# Upload current output files
+for (file_path in files_to_upload) {
+  upload_file_to_deposition(dep$id, file_path, output_dir)
+}
+
+message("Upload complete.")
 
 if (publish_record) {
   published <- publish_deposition(dep)
   message("Published record: ", published$links$html)
+  write_version_file(version_file, dataset_version)
 } else {
   message("Record was not published.")
   message("Inspect the draft here:")
   message(dep$links$html)
+  write_version_file(version_file, dataset_version)
 }
 
 message("Done.")
+
