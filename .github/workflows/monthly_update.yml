@@ -15,6 +15,7 @@ jobs:
       ZENODO_TOKEN: ${{ secrets.ZENODO_SANDBOX_TOKEN }}
       ZENODO_SANDBOX: "true"
       ZENODO_PUBLISH: "false"
+      ZENODO_RECORD_ID: ${{ secrets.ZENODO_SANDBOX_RECORD_ID }}
       PIPELINE_TYPE: "monthly"
       OUTPUT_DIR: "output"
       VERSION_FILE: "VERSION"
@@ -42,8 +43,20 @@ jobs:
           Rscript -e 'packageVersion("fs")'
           Rscript -e 'packageVersion("arrow")'
 
+      - name: Download previous output from Zenodo Sandbox
+        run: Rscript R/download_output_from_zenodo.R
+
+      - name: Show output files after download
+        run: |
+          ls -la
+          ls -la output || echo "No output folder found"
+
       - name: Run monthly update
         run: Rscript run_monthly_update.R
+
+      - name: Show output files after monthly update
+        run: |
+          ls -la output || echo "No output folder found"
 
       - name: Upload output to Zenodo Sandbox
         run: Rscript R/upload_output_to_zenodo.R
