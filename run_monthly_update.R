@@ -14,7 +14,7 @@ dir.create("output", showWarnings = FALSE, recursive = TRUE)
 matched <- arrow::read_parquet("output/matched_reviewed_refs.parquet")
 
 # Enrich matched references with linked citation network metadata
-enriched <- enrich_openalex_metadata(matched)
+enriched <- enrich_openalex_metadata(matched$OpenAlex_ID_short)
 
 # Export enriched network as JSON
 jsonlite::write_json(

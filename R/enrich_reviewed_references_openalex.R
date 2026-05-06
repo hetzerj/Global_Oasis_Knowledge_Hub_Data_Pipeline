@@ -104,7 +104,7 @@ match_reviewed_references_openalex <- function(reviewed_refs) {
 # 3) Create a knowledge-network from the matched IDs 
 # -------------------------------------------------------------------
 
-enrich_openalex_metadata <- function(matches, batch_size = 25, verbose = TRUE) {
+enrich_openalex_metadata <- function(matches, batch_size = 20, verbose = TRUE) {
   # Given a vector of OpenAlex work IDs, this function:
   #   - cleans and de-duplicates the IDs
   #   - splits them into batches
@@ -123,8 +123,7 @@ enrich_openalex_metadata <- function(matches, batch_size = 25, verbose = TRUE) {
   
   # 1) Clean and de-duplicate identifiers
   identifiers <- unique(matches)
-  identifiers <- identifiers[!is.na(identifiers)]                # drop NAs
-  identifiers <- sub("https://openalex.org/", "", identifiers)   # strip base URL if present
+  identifiers <- identifiers[!is.na(identifiers)]
   
   # If nothing left after cleaning, return empty tables
   if (length(identifiers) == 0) {
