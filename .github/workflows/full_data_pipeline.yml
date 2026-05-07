@@ -17,10 +17,11 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      #ZENODO_RECORD_ID: ${{ secrets.ZENODO_SANDBOX_RECORD_ID }}
+      #ZENODO_CONCEPT_RECORD_ID: ${{ secrets.ZENODO_SANDBOX_CONCEPT_RECORD_ID }}
       ZENODO_TOKEN: ${{ secrets.ZENODO_SANDBOX_TOKEN }}
       ZENODO_SANDBOX: "true"
       ZENODO_PUBLISH: "true"
-      ZENODO_RECORD_ID: ${{ secrets.ZENODO_SANDBOX_RECORD_ID }}
       PIPELINE_TYPE: "full"
       OUTPUT_DIR: "output"
       VERSION_FILE: "VERSION"
