@@ -84,6 +84,8 @@ write_version_file <- function(version_file, version) {
 }
 
 
+
+
 # ==============================================================================
 # User and environment configuration
 # ==============================================================================
@@ -93,8 +95,10 @@ zenodo_token <- Sys.getenv("ZENODO_TOKEN")
 use_sandbox <- tolower(Sys.getenv("ZENODO_SANDBOX", "true")) %in% c("true", "1", "yes")
 publish_record <- tolower(Sys.getenv("ZENODO_PUBLISH", "false")) %in% c("true", "1", "yes")
 
+concept_record_id <- Sys.getenv("ZENODO_CONCEPT_RECORD_ID", unset = NA)
 record_id <- Sys.getenv("ZENODO_RECORD_ID", unset = NA)
 deposition_id <- Sys.getenv("ZENODO_DEPOSITION_ID", unset = NA)
+
 output_dir <- Sys.getenv("OUTPUT_DIR", "output")
 
 version_file <- Sys.getenv("VERSION_FILE", "VERSION")
@@ -167,6 +171,48 @@ message("Files found: ", length(files_to_upload))
 # ==============================================================================
 # Zenodo API helper functions
 # ==============================================================================
+
+get_latest_record_id_from_concept <- function(concept_record_id) {
+  message("Resolving latest version from concept record ID: ", concept_record_id)
+  
+  latest_url <- paste0(
+    base_url,
+    "/records/",
+    concept_record_id,
+    "/versions/latest"
+  )
+  
+  resp <- httr2::request(latest_url) |>
+    httr2::req_user_agent(user_agent) |>
+    httr2::req_headers("Accept" = "application/json") |>
+    httr2::req_error(is_error = function(resp) FALSE) |>
+    httr2::req_perform()
+  
+  status <- httr2::resp_status(resp)
+  body <- tryCatch(httr2::resp_body_string(resp), error = function(e) "")
+  
+  if (status >= 300) {
+    stop(
+      "Could not resolve latest Zenodo version from concept record ID.\n",
+      "HTTP status: ", status, "\n",
+      "Response body:\n", body
+    )
+  }
+  
+  latest_record <- jsonlite::fromJSON(body, simplifyVector = FALSE)
+  
+  if (is.null(latest_record$id)) {
+    stop(
+      "Zenodo latest-version response did not contain a record ID.\n",
+      "Response body:\n", body
+    )
+  }
+  
+  message("Latest version record ID: ", latest_record$id)
+  
+  as.character(latest_record$id)
+}
+
 
 zenodo_request <- function(url) {
   httr2::request(url) |>
@@ -428,14 +474,20 @@ if (!is.na(deposition_id) && deposition_id != "") {
   message("Using existing draft deposition from ZENODO_DEPOSITION_ID.")
   dep <- get_deposition(deposition_id)
   
+} else if (!is.na(concept_record_id) && concept_record_id != "") {
+  message("Using ZENODO_CONCEPT_RECORD_ID to create a new version.")
+  latest_record_id <- get_latest_record_id_from_concept(concept_record_id)
+  latest_draft_url <- create_new_version(latest_record_id)
+  dep <- get_deposition_by_url(latest_draft_url)
+  
 } else if (!is.na(record_id) && record_id != "") {
   message("Creating new version from ZENODO_RECORD_ID.")
   latest_draft_url <- create_new_version(record_id)
   dep <- get_deposition_by_url(latest_draft_url)
   
 } else {
-  message("No ZENODO_DEPOSITION_ID or ZENODO_RECORD_ID provided.")
-  message("Creating a completely new Zenodo draft deposition.")
+  message("No Zenodo concept, record, or draft ID provided.")
+  message("Creating the first Zenodo draft deposition.")
   dep <- create_new_deposition()
 }
 
@@ -457,14 +509,36 @@ message("Upload complete.")
 
 if (publish_record) {
   published <- publish_deposition(dep)
+  
   message("Published record: ", published$links$html)
+  
+  if (!is.null(published$conceptrecid)) {
+    message("Concept record ID: ", published$conceptrecid)
+    message("Use this value as ZENODO_CONCEPT_RECORD_ID for future updates.")
+  }
+  
+  if (!is.null(published$conceptdoi)) {
+    message("Concept DOI: ", published$conceptdoi)
+  }
+  
+  if (!is.null(published$id)) {
+    message("Version record ID: ", published$id)
+  }
+  
+  if (!is.null(published$doi)) {
+    message("Version DOI: ", published$doi)
+  }
+  
   write_version_file(version_file, dataset_version)
+  
 } else {
   message("Record was not published.")
   message("Inspect the draft here:")
   message(dep$links$html)
+  
+  message("Because the record was not published, no stable concept ID has been finalized yet.")
+  
   write_version_file(version_file, dataset_version)
 }
 
 message("Done.")
-

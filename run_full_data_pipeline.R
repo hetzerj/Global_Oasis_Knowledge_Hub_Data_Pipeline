@@ -13,7 +13,8 @@ dir.create("output", showWarnings = FALSE, recursive = TRUE)
 
 
 # Load reviewed references and match them to OpenAlex
-reviewed <- load_reviewed_references()
+#testing, only with 10 entries
+reviewed <- load_reviewed_references()[1:10,]
 matched <- match_reviewed_references_openalex(reviewed)
 
 # Store full and shortened OpenAlex identifiers
@@ -57,3 +58,4 @@ arrow::write_parquet(
   "output/expanded_works_nodes.parquet",
   compression = "zstd"
 )
+
