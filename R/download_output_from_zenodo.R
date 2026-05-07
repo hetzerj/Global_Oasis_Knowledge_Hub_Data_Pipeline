@@ -6,15 +6,6 @@
 #
 # This script is intended to run before run_monthly_update.R.
 #
-# Required environment variable:
-#   ZENODO_CONCEPT_RECORD_ID
-#
-# Optional environment variables:
-#   ZENODO_SANDBOX  "true" or "false", default: "true"
-#   OUTPUT_DIR      output directory, default: output
-# ==============================================================================
-
-
 # ==============================================================================
 # Configuration
 # ==============================================================================
