@@ -2,7 +2,7 @@
 # This script is suppose to run in order to update monthly with run_monthly_update.R
 
 
-record_id <- Sys.getenv("ZENODO_RECORD_ID")
+concept_record_id <- Sys.getenv("ZENODO_CONCEPT_RECORD_ID")
 use_sandbox <- tolower(Sys.getenv("ZENODO_SANDBOX", "true")) %in% c("true", "1", "yes")
 output_dir <- Sys.getenv("OUTPUT_DIR", "output")
 
