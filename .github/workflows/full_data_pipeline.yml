@@ -1,0 +1,67 @@
+name: Full data pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "input/**"
+      - "run_full_data_pipeline.R"
+      - "R/upload_output_to_zenodo.R"
+      - ".github/workflows/full_data_pipeline.yml"
+
+  workflow_dispatch:
+
+jobs:
+  full-pipeline:
+    runs-on: ubuntu-latest
+
+    env:
+      ZENODO_TOKEN: ${{ secrets.ZENODO_SANDBOX_TOKEN }}
+      ZENODO_SANDBOX: "true"
+      ZENODO_PUBLISH: "true"
+      ZENODO_RECORD_ID: ${{ secrets.ZENODO_SANDBOX_RECORD_ID }}
+      PIPELINE_TYPE: "full"
+      OUTPUT_DIR: "output"
+      VERSION_FILE: "VERSION"
+      openalexR.apikey: ${{ secrets.OPENALEXR_API_KEY }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libuv1-dev cmake
+
+      - name: Install R packages
+        run: |
+          Rscript -e 'install.packages(c("httr", "httr2", "jsonlite", "fs", "openalexR", "readr"), repos = "https://cloud.r-project.org")'
+          Rscript -e 'install.packages("arrow", repos = "https://packagemanager.posit.co/cran/__linux__/noble/latest")'
+
+      - name: Check installed R packages
+        run: |
+          Rscript -e 'packageVersion("fs")'
+          Rscript -e 'packageVersion("arrow")'
+          Rscript -e 'packageVersion("openalexR")'
+
+      - name: Show repository files before full pipeline
+        run: |
+          pwd
+          ls -la
+          ls -la input || echo "No input folder found"
+          ls -la output || echo "No output folder yet"
+
+      - name: Run full data pipeline
+        run: Rscript run_full_data_pipeline.R
+
+      - name: Show output files after full pipeline
+        run: |
+          ls -la output || echo "No output folder found"
+
+      - name: Upload output to Zenodo Sandbox
+        run: Rscript R/upload_output_to_zenodo.R

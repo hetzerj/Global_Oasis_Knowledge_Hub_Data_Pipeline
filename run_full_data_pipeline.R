@@ -5,6 +5,7 @@
 # 3. enriches the matched records with citation network metadata
 # 4. exports intermediate and final outputs for downstream use
 
+source("R/enrich_reviewed_references_openalex.R")
 source("R/postprocess_for_platform.R")
 
 # create output directory
@@ -27,18 +28,18 @@ arrow::write_parquet(
 )
 
 # Enrich matched references with linked citation network metadata
-enriched <- enrich_openalex_metadata(matched)
+enriched <- enrich_openalex_metadata(reviewed$OpenAlex_ID_short)
 
 # Export full enriched network object as JSON
-jsonlite::write_json(
-  enriched,
-  "output/expanded_works.json",
-  pretty = TRUE,
-  auto_unbox = TRUE,
-  dataframe = "rows",
-  null = "null",
-  na = "null"
-)
+# jsonlite::write_json(
+#   enriched,
+#   "output/expanded_works.json",
+#   pretty = TRUE,
+#   auto_unbox = TRUE,
+#   dataframe = "rows",
+#   null = "null",
+#   na = "null"
+# )
 
 # Export network edges in compressed parquet format
 arrow::write_parquet(
