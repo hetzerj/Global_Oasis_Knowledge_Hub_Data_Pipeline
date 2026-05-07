@@ -64,5 +64,11 @@ jobs:
         run: |
           ls -la output || echo "No output folder found"
 
+      - name: Check Zenodo environment
+        run: |
+          Rscript -e 'cat("ZENODO_SANDBOX =", Sys.getenv("ZENODO_SANDBOX"), "\n")'
+          Rscript -e 'cat("ZENODO_TOKEN is set =", Sys.getenv("ZENODO_TOKEN") != "", "\n")'
+          Rscript -e 'cat("ZENODO_CONCEPT_RECORD_ID =", Sys.getenv("ZENODO_CONCEPT_RECORD_ID"), "\n")'
+          
       - name: Upload output to Zenodo Sandbox
         run: Rscript R/upload_output_to_zenodo.R
