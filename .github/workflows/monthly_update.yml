@@ -4,9 +4,11 @@ on:
   schedule:
     # Runs on the first day of every month at 05:00 UTC
     - cron: "0 5 1 * *"
-
   workflow_dispatch:
 
+permissions:
+  contents: write
+  
 jobs:
   monthly-update:
     runs-on: ubuntu-latest
@@ -65,5 +67,14 @@ jobs:
           Rscript -e 'cat("ZENODO_TOKEN is set =", Sys.getenv("ZENODO_TOKEN") != "", "\n")'
           Rscript -e 'cat("ZENODO_CONCEPT_RECORD_ID =", Sys.getenv("ZENODO_CONCEPT_RECORD_ID"), "\n")'
 
+
       - name: Upload output to Zenodo Sandbox
         run: Rscript R/upload_output_to_zenodo.R
+
+      - name: Commit updated VERSION file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add VERSION
+          git commit -m "Update dataset version" || echo "No version change to commit"
+          git push
