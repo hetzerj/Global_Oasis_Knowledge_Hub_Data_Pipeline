@@ -17,15 +17,15 @@ matched <- arrow::read_parquet("output/matched_reviewed_refs.parquet")
 enriched <- enrich_openalex_metadata(matched$OpenAlex_ID_short)
 
 # Export enriched network as JSON
-# jsonlite::write_json(
-#   enriched,
-#   "output/expanded_works.json",
-#   pretty = TRUE,
-#   auto_unbox = TRUE,
-#   dataframe = "rows",
-#   null = "null",
-#   na = "null"
-# )
+jsonlite::write_json(
+  enriched,
+  "output/expanded_works.json",
+  pretty = TRUE,
+  auto_unbox = TRUE,
+  dataframe = "rows",
+  null = "null",
+  na = "null"
+)
 
 # Export network edges in compressed parquet format
 arrow::write_parquet(

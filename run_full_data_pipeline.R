@@ -31,16 +31,16 @@ arrow::write_parquet(
 # Enrich matched references with linked citation network metadata
 enriched <- enrich_openalex_metadata(reviewed$OpenAlex_ID_short)
 
-# Export full enriched network object as JSON
-# jsonlite::write_json(
-#   enriched,
-#   "output/expanded_works.json",
-#   pretty = TRUE,
-#   auto_unbox = TRUE,
-#   dataframe = "rows",
-#   null = "null",
-#   na = "null"
-# )
+#Export full enriched network object as JSON
+jsonlite::write_json(
+  enriched,
+  "output/expanded_works.json",
+  pretty = TRUE,
+  auto_unbox = TRUE,
+  dataframe = "rows",
+  null = "null",
+  na = "null"
+)
 
 # Export network edges in compressed parquet format
 arrow::write_parquet(

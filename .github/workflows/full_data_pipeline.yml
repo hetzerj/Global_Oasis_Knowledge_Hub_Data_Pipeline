@@ -65,6 +65,21 @@ jobs:
       - name: Show output files after full pipeline
         run: |
           ls -la output || echo "No output folder found"
+          
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Map OpenAlex data to TTL
+        run: python python/map_openalex_to_ttl.py
+
+      - name: Show output files after full pipeline
+        run: |
+          ls -la output || echo "No output folder found"
 
       - name: Check Zenodo environment
         run: |
