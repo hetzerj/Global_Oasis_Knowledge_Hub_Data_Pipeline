@@ -14,7 +14,7 @@ dir.create("output", showWarnings = FALSE, recursive = TRUE)
 
 # Load reviewed references and match them to OpenAlex
 #testing, only with 10 entries
-reviewed <- load_reviewed_references()
+reviewed <- load_reviewed_references()[1:20]
 matched <- match_reviewed_references_openalex(reviewed)
 
 # Store full and shortened OpenAlex identifiers
