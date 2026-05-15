@@ -132,7 +132,7 @@ message("Next dataset version: ", dataset_version)
 # ==============================================================================
 
 excluded_files <- c(
-  "expanded_works.json"
+  "expanded_works.json", "Global_Oasis_Knowledge_Hub.ttl"
 )
 
 if (!fs::dir_exists(output_dir)) {
