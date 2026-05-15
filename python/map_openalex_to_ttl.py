@@ -3,6 +3,8 @@ import json
 import re
 from rdflib import Namespace, URIRef, Graph, Literal
 from rdflib.namespace import RDF
+import gzip
+import shutil
 
 skos = Namespace("http://www.w3.org/2004/02/skos/core#")
 oasis = Namespace("http://oasis.senckenberg.de/ontology/")
@@ -32,7 +34,6 @@ graph.bind("xsd", xsd)
 # chunking
 counter = 0
 first_write = True
-
 
 p = pd.read_parquet('output/matched_reviewed_refs.parquet')
 
@@ -261,3 +262,10 @@ if first_write:
 else:
     with open('output/GOKH.ttl', 'a', encoding='utf-8') as f:
         f.write(graph.serialize(format="turtle"))
+
+with open("output/GOKH.ttl", "rb") as f_in:
+    with gzip.open("output/GOKH.ttl.gz", "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)        
+        
+        
+        
