@@ -236,10 +236,10 @@ for a in range(len(p)):
     if counter % 200 == 0:
 
         if first_write:
-            graph.serialize(destination='output/GOKH.ttl', format="turtle")
+            graph.serialize(destination='output/Global_Oasis_Knowledge_Hub.ttl', format="turtle")
             first_write = False
         else:
-            with open('output/GOKH.ttl', 'a', encoding='utf-8') as f:
+            with open('output/Global_Oasis_Knowledge_Hub.ttl', 'a', encoding='utf-8') as f:
                 f.write(graph.serialize(format="turtle"))
 
         graph = Graph()
@@ -258,13 +258,13 @@ for a in range(len(p)):
 
 # final write
 if first_write:
-    graph.serialize(destination='output/GOKH.ttl', format="turtle")
+    graph.serialize(destination='output/Global_Oasis_Knowledge_Hub.ttl', format="turtle")
 else:
-    with open('output/GOKH.ttl', 'a', encoding='utf-8') as f:
+    with open('output/Global_Oasis_Knowledge_Hub.ttl', 'a', encoding='utf-8') as f:
         f.write(graph.serialize(format="turtle"))
 
-with open("output/GOKH.ttl", "rb") as f_in:
-    with gzip.open("output/GOKH.ttl.gz", "wb") as f_out:
+with open("output/Global_Oasis_Knowledge_Hub.ttl", "rb") as f_in:
+    with gzip.open("output/Global_Oasis_Knowledge_Hub.ttl.gz", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)        
         
         
