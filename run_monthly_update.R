@@ -20,7 +20,7 @@ enriched <- enrich_openalex_metadata(matched$OpenAlex_ID_short)
 jsonlite::write_json(
   enriched,
   "output/expanded_works.json",
-  pretty = TRUE,
+  pretty = FALSE,
   auto_unbox = TRUE,
   dataframe = "rows",
   null = "null",
