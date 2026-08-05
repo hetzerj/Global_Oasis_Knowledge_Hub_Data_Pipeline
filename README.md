@@ -34,9 +34,9 @@ openalexR.mailto = your_email_address_here
     install.packages(c("openalexR", "readr", "jsonlite", "arrow"))
     ```
 
-3.  Clone or download this repository.\
+3.  Clone or download this repository.
 
-4.  Make sure to include the reviewed reference file in the `input/` folder.\
+4.  Make sure to include the reviewed reference file in the `input/` folder.
 
 5.  Run the full pipeline locally with:
 
@@ -54,9 +54,9 @@ openalexR.mailto = your_email_address_here
 
 The pipeline generates processed files in the `output/` folder, including:
 
--   matched reviewed references\
--   enriched citation network data\
--   node and edge tables for downstream use\
+-   matched reviewed references
+-   enriched citation network data
+-   node and edge tables for downstream use
 -   platform ready export files
 
 These outputs can then be used by the **Global Oasis Knowledge Hub** platform repository.
@@ -67,10 +67,10 @@ This pipeline is intended to support local execution as well as automated schedu
 
 ## 🌐 Live Web Interface
 
-The compiled web interface can be accessed here:\
+The compiled web interface can be accessed here:
 🔗 [Global Oasis Knowledge Hub](https://hetzerj.shinyapps.io/Global_Oasis_Knowledge_Hub/)
 
-The code repository for the platform framework is:\
+The code repository for the platform framework is:
 🔗 [Global_Oasis_Knowledge_Hub repository](https://github.com/hetzerj/Global_Oasis_Knowledge_Hub)
 
 ------------------------------------------------------------------------
