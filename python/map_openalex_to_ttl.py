@@ -217,7 +217,7 @@ for a in range(len(p)):
 
         sourceuri = 'http://oasis.senckenberg.de/ontology/OasisNodesSource_' + row["id"]
         graph.add((URIRef(sourceuri), RDF.type, oasis.OasisNodesSource))
-        if row["source_id"] != None:
+        if pd.notna(row["source_id"]):
             graph.add((URIRef(sourceuri), oasis.OasisNodesSource_url , URIRef(row["source_id"])))
         graph.add((URIRef(sourceuri), rdfs.label , Literal(row["source_display_name"])))
 
